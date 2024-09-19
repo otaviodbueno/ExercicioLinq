@@ -4,65 +4,53 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Curso.Entities;
-using Curso.Entities;
+using System.Globalization;
+using System.Security.Cryptography;
 
 
-List<Product> products = new List<Product>();
+List<Funcionario> listaFuncionarios =  new List<Funcionario>();
 
-Console.WriteLine("Enter the numer of products: ");
-int number = int.Parse(Console.ReadLine());
+Console.WriteLine("Digite o caminho do arquivo csv: ");
+var path = Console.ReadLine();
 
-for (int i = 0; i < number; i++)
+using (StreamReader sr = File.OpenText(path))
 {
-    Console.WriteLine($"Product {i + 1} data: ");
-    Console.WriteLine("Common, used or imported? (c/u/i)");
-    string typeOfProduct = Console.ReadLine();
-
-    if (typeOfProduct == "c")
+    while (!sr.EndOfStream)
     {
-        Console.Write("Name: ");
-        string name = Console.ReadLine();
-        Console.Write("Price: ");
-        double price = double.Parse(Console.ReadLine());
+        string[] vetor = sr.ReadLine().Split(',');
+        string nome = vetor[0];
+        string email = vetor[1];
+        double salario = double.Parse(vetor[2], CultureInfo.InvariantCulture);
 
-        Product product = new Product(name, price);
+        var func = new Funcionario(nome, email, salario);
 
-        products.Add(product);
+        listaFuncionarios.Add(func);
     }
 
-    if (typeOfProduct == "u")
+    Console.WriteLine("FUNCIONÁRIOS");
+    foreach (var func in listaFuncionarios)
     {
-        Console.Write("Name: ");
-        string name = Console.ReadLine();
-        Console.Write("Price: ");
-        double price = double.Parse(Console.ReadLine());
-        Console.Write("Manufacture date (DD/MM/YYYY): ");
-        DateTime manufactureDate = DateTime.Parse(Console.ReadLine());
-
-        UsedProduct product = new UsedProduct(name, price, manufactureDate);
-
-        products.Add(product);
+        Console.WriteLine(func);
     }
 
-    if (typeOfProduct == "i")
+    Console.WriteLine("======================================================");
+
+    Console.WriteLine("Digite o salário mínimo que para retornar os emails: ");
+    double sal = double.Parse(Console.ReadLine(), CultureInfo.InvariantCulture);
+
+    var lista = listaFuncionarios.Where(f => f.Salario > sal).Select(f => f.Email).ToList();
+
+
+    foreach(var func in lista)
     {
-        Console.Write("Name: ");
-        string name = Console.ReadLine();
-        Console.Write("Price: ");
-        double price = double.Parse(Console.ReadLine());
-        Console.Write("Customs Fee: ");
-        double customsFee = double.Parse(Console.ReadLine());
+        Console.WriteLine(func);
 
-        ImportedProduct product = new ImportedProduct(name, price, customsFee); git
-
-        products.Add(product);
     }
-}
 
-Console.WriteLine("PRICE TAGS:");
+    var somaSalario = listaFuncionarios.Where(f => f.Nome[0] == 'M').Select(f => f.Salario).Sum();
 
-foreach (Product product in products)
-{
-    Console.WriteLine(product.PriceTag());
+    Console.WriteLine("========================================================");
+
+    Console.WriteLine("Soma dos salarios dos funcionarios que começam com M: "+ somaSalario);
 }
 
